@@ -52,6 +52,7 @@ sia_chest.formspec = function(pos,page)
 		.."button[13,6.5;2,0.5;delete;Delete]"
 		.."list[current_name;"..page..";0,1;15,5;]"
 		.."list[current_player;main;0,7;8,4;]"
+		.."listring[]"
 end
 
 sia_chest.get_pages = function(meta)
@@ -141,6 +142,9 @@ sia_chest.can_dig = function(pos,player)
 			return false
 		end
 	end
+	if sia.is_member(player:get_player_name())==false then 
+		return false
+	end
 	return true
 end
 
@@ -179,10 +183,10 @@ end
 
 sia_chest.has_locked_chest_privilege = function(meta, player)
 	local name = player:get_player_name()
-	if minetest.check_player_privs(player, "SIA_member") then
-		return false
+	if sia.is_member(player:get_player_name()) then
+		return true
 	end
-	return true
+	return false
 end
 
 sia_chest.on_metadata_inventory_move = function(pos, from_list, from_index, to_list, to_index, count, player)

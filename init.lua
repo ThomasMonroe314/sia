@@ -1,5 +1,68 @@
-local sia = {}
+sia = {}
 screwdriver = screwdriver or {}
+
+minetest.register_privilege("SIA_admin", {
+	description = "Is a member of the Server Intelegence Agency",
+	give_to_singleplayer = false
+})
+
+local mod_storage = minetest.get_mod_storage()
+
+function sia.is_member(name)
+	local str = mod_storage:get_string("SIA_members")
+	for x in string.gmatch(str, '([^,]+)') do
+		if x==name then
+			return true
+		end
+	end
+	return false
+end
+
+minetest.register_chatcommand("listmembers", {
+	description = "Lists the Sia members",
+	privs = {SIA_admin = true},
+	func = function(name, param)
+		local str = mod_storage:get_string("SIA_members")
+		for x in string.gmatch(str, '([^,]+)') do
+		    minetest.chat_send_player(name,x)
+		end
+	end
+})
+minetest.register_chatcommand("addmember", {
+	description = "",
+	param = "<player>",
+	privs = {SIA_admin = true},
+	func = function(name, param)
+		if mod_storage:get_string("SIA_members")=="" then
+			mod_storage:set_string("SIA_members",param)
+		else
+			if not sia.is_member(param) then
+				mod_storage:set_string("SIA_members",mod_storage:get_string("SIA_members")..","..param)
+			end
+		end
+	end
+})
+
+minetest.register_chatcommand("removemember", {
+	description = "",
+	param = "<player>",
+	privs = {SIA_admin = true},
+	func = function(name, param)
+		local str = mod_storage:get_string("SIA_members")
+		local nstr = ""
+		for x in string.gmatch(str, '([^,]+)') do
+			if x==param then
+			else
+				if nstr == "" then
+					nstr = nstr..x
+				else
+					nstr = nstr..","..x
+				end
+			end
+		end
+		mod_storage:set_string("SIA_members",nstr)
+	end
+})
 
 local cbox = {
 	type = "fixed",
@@ -8,10 +71,6 @@ local cbox = {
 
 dofile(minetest.get_modpath("sia").."/api.lua")
 
-minetest.register_privilege("SIA_member", {
-	description = "Is a member of the Server Intelegence Agency",
-	give_to_singleplayer = false
-})
 
 minetest.register_alias("SIA_Mailbox","sia:mailbox")
 
@@ -41,9 +100,7 @@ minetest.register_node("sia:mailbox", {
 	on_rightclick = function(pos, node, clicker, itemstack)
 		local meta = minetest.get_meta(pos)
 		local player = clicker:get_player_name()
-		if minetest.check_player_privs(player, "SIA_member") or
-				minetest.check_player_privs(player, "protection_bypass") and
-				clicker:get_player_control().aux1 then
+		if sia.is_member(player) then
 			minetest.show_formspec(
 				clicker:get_player_name(),
 				"default:chest_locked",
@@ -60,7 +117,7 @@ minetest.register_node("sia:mailbox", {
 		local meta = minetest.get_meta(pos);
 		local name = player and player:get_player_name()
 		local inv = meta:get_inventory()
-		return minetest.check_player_privs(player, "SIA_member") and inv:is_empty("main")
+		return sia.is_member(player:get_player_name()) and inv:is_empty("main")
 	end,
 	on_metadata_inventory_put = function(pos, listname, index, stack, player)
 		local meta = minetest.get_meta(pos)
