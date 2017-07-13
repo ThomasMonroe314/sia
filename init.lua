@@ -89,7 +89,7 @@ minetest.register_node("sia:mailbox", {
 
 minetest.register_node("sia:chest", {
 	description = "SIA Chest",
-	tiles = {"default_chest_top.png", "default_chest_top.png", "default_chest_side.png", "default_chest_side.png", "default_chest_side.png", "default_chest_lock.png"},
+	tiles = {"sia_chest_top.png", "sia_chest_top.png", "sia_chest_side.png", "sia_chest_side.png", "sia_chest_side.png", "sia_chest_lock.png"},
 	paramtype2 = "facedir",
 	groups = {snappy=2,choppy=2,oddly_breakable_by_hand=2},
 	legacy_facedir_simple = true,
