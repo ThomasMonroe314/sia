@@ -29,8 +29,8 @@ minetest.register_chatcommand("listmembers", {
 	end
 })
 minetest.register_chatcommand("addmember", {
-	description = "",
-	param = "<player>",
+	description = "Adds player to the SIA member list",
+	params = "<player>",
 	privs = {SIA_admin = true},
 	func = function(name, param)
 		if mod_storage:get_string("SIA_members")=="" then
@@ -38,14 +38,17 @@ minetest.register_chatcommand("addmember", {
 		else
 			if not sia.is_member(param) then
 				mod_storage:set_string("SIA_members",mod_storage:get_string("SIA_members")..","..param)
+				minetest.chat_send_player(name,param.." was added succesefully")
+			else
+				minetest.chat_send_player(name,param.." is already a member")
 			end
 		end
 	end
 })
 
 minetest.register_chatcommand("removemember", {
-	description = "",
-	param = "<player>",
+	description = "Removes player from the SIA member list",
+	params = "<player>",
 	privs = {SIA_admin = true},
 	func = function(name, param)
 		local str = mod_storage:get_string("SIA_members")
@@ -61,6 +64,7 @@ minetest.register_chatcommand("removemember", {
 			end
 		end
 		mod_storage:set_string("SIA_members",nstr)
+		minetest.chat_send_player(name,param.." was removed succesefully")
 	end
 })
 
